@@ -1,0 +1,29 @@
+ 
+# Initialization of variables
+ALevel_High <- vector()
+ALevel_Medium <- vector()
+Ratio_Sulphates_Chlorides <- 0
+
+Ratio_Sulphates_Chlorides_High <- vector()
+Ratio_Sulphates_Chlorides_Medium <- vector()
+
+# Creating high and medium alcohol level
+for (value in 1:length(Redwine$alcohol)){
+  if (Redwine$alcohol[value] > 10.2){
+    ALevel_Value <- format(round(Redwine$alcohol[value],2)) # Formatting decimal places
+    ALevel_High <- append(ALevel_High, ALevel_Value)
+    
+    # Calculating the ratio of Sulphates to Chlorides for High Alcohol Level
+    Ratio_Sulphates_Chlorides <- Redwine$sulphate[value]/Redwine$chlorides[value] 
+    Ratio_Sulphates_Chlorides_High <- append(Ratio_Sulphates_Chlorides_High,Ratio_Sulphates_Chlorides)
+  }
+  
+  else{
+    ALevel_Value <- format(round(Redwine$alcohol[value],2)) # Formatting decimal places
+    ALevel_Medium <- append(ALevel_Medium, ALevel_Value)
+    
+    # Calculating the ratio of Sulphates to Chlorides for Low Alcohol Level
+    Ratio_Sulphates_Chlorides <- Redwine$sulphate[value]/Redwine$chlorides[value]
+    Ratio_Sulphates_Chlorides_Medium <- append(Ratio_Sulphates_Chlorides_Medium,Ratio_Sulphates_Chlorides)
+  }
+}

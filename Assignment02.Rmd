@@ -1,0 +1,302 @@
+---
+title: "CptS 575_Assignment 02"
+author: "Sajjad Uddin Mahmud | WSU ID: 011789534"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+setwd("D:/One_Drive_Sajjad/OneDrive - Washington State University (email.wsu.edu)/Documents/Sajjad Uddin Mahmud/1. Courses/2. Fall 2022/CPT_S 575 Data Science/Homework/Assignment 02")
+
+```
+
+# Solution of Problem 01
+
+## 1(a) Reading .csv file
+
+```{r, warning=FALSE, message=FALSE}
+
+# Reading red wine quality dataset in a dataframe named Redwine
+Redwine <- read.csv("winequality-red.csv")
+
+```
+
+
+## 1(b) Calculating median quality and mean alcohol level
+
+```{r, warning=FALSE, message=FALSE}
+
+# Finding median
+Median_Quality <- median(Redwine$quality)
+
+# Finding mean
+Mean_Alcohol_Level <- mean(Redwine$alcohol)
+Mean_Alcohol_Level <- format(round(Mean_Alcohol_Level,2)) # Formatting decimal places
+
+```
+The median quality of all the wine samples is **`r Median_Quality`**.
+
+The mean alcohol level of all the wine samples is **`r Mean_Alcohol_Level`**.  
+<br>  
+
+## 1(c) Producing scatter plot
+
+```{r, warning=FALSE, message=FALSE}
+
+# Getting the input parameters
+x <- Redwine$alcohol
+y <- Redwine$pH
+
+# Creating the plot
+plot(x, y, xlab="Alcohol", ylab="pH", main="Alcohol vs pH", col=c("#009999"))
+
+```
+
+
+## 1(d) Producing box plot
+
+```{r, warning=FALSE, message=FALSE}
+
+# IFELSE: Alcohol level separation
+ALevel <- ifelse(Redwine$alcohol > 10.2, "High", "Medium")
+table(ALevel)
+
+Ratio_Sulphates_Chlorides <- Redwine$sulphate/Redwine$chlorides
+
+Redwine_New <- cbind(Redwine,ALevel,Ratio_Sulphates_Chlorides)
+
+# Creating box plots
+library(ggplot2) 
+
+ggplot(data=Redwine_New,aes(x=ALevel,y=Ratio_Sulphates_Chlorides)) +  
+  geom_boxplot() +  
+  labs(title = "Box plot of the ratio Sulphates/Chlorides",
+       x = "High or Medium Level Alcohol",
+       y = "Ratio of Sulphates to Chlorides")
+
+```
+
+The number of samples in the High category is **757**  
+
+
+## 1(e) Producing histogram
+
+```{r, warning=FALSE, message=FALSE}
+
+# Creating data frame of high alcohol level
+ALevel_High <- Redwine[which(Redwine$alcohol>10.2),]
+
+# Plotting histogram
+hist(ALevel_High$total_sulfur_dioxide, main="Histogram for High Alcohol Level", 
+     xlab="Total Sulfur Dioxide", ylab="Sample Numbers")
+
+# Creating data frame of low alcohol level
+ALevel_Low <- Redwine[which(Redwine$alcohol<=10.2),]
+
+# Plotting histogram
+hist(ALevel_Low$total_sulfur_dioxide, main="Histogram for Low Alcohol Level", 
+    xlab="Total Sulfur Dioxide", ylab="Sample Numbers")
+
+```
+
+## 1(f) Hypothesis
+
+**Plot 1: pH vs Acidity of Wine**
+
+We all know that less value of pH means more acidic. The pH vs total acidity of wine has been plotted below. To get the total acidity, I have taken the sum of fixed acidity, volatile acidity and citric acid.
+
+```{r, warning=FALSE, message=FALSE}
+
+# Measuring total acidity
+Total_Acid <- Redwine$fixed_acidity + Redwine$volatile_acidity + Redwine$citric_acid
+
+# Adding a new column in the data frame for total acidity
+Redwine_Acid <- Redwine
+Redwine_Acid$Total_Acidity <- Total_Acid
+
+# Plotting the relation
+plot(x=Redwine_Acid$pH, y=Redwine_Acid$Total_Acidity, 
+     xlab="pH", ylab="Total Acidity", 
+     main="pH vs Total Acidity of Wine", col=c("#001B99"))
+
+```
+
+As can be seen in the preceding graph, wine with higher pH values are less acidic than those with lower values. However, there is a low acidic value when pH is less than 2. This could be an error in the data set or some other ingredients may affect the acidity for that particular wine case.
+
+\newpage
+**Plot 2: Sugar vs Wine Quality**  
+
+Now we want to see whether the better quality wines are also sweeter.
+
+```{r, warning=FALSE, message=FALSE}
+
+# Plotting the relation
+plot(x=Redwine_Acid$quality, y=Redwine_Acid$residual_sugar, 
+     xlab="Quality", ylab="Residual_Sugar", 
+     main="Residual Sugar vs Quality of Wine", col=c("#55A2A4"))
+
+```
+
+From the graph it can be seen than the finer quality wine does not necessarily mean that it will be sweeter. Most of the sweet wines are belong in the average quality of wine as per this data set.
+
+
+
+\newpage
+# Solution of Problem 02
+
+## 2(a) Quantitative and qualitative predictors  
+
+### Quantitative predictors:
+* FFMC
+* DMC
+* DC
+* ISI
+* temp
+* RH
+* wind
+* rain and
+* area
+
+### Qualitative predictors:
+* X
+* Y
+* month
+* day
+
+
+
+## 2(b) Range, mean and standard deviation
+
+```{r, warning=FALSE, message=FALSE}
+
+library(tidyverse)
+
+# Reading data set
+ForestFires <- read.csv("forestfires.csv")
+
+# Declaring a function that will calculate range, mean and standard deviation
+Range_Mean_SD <- function(Range_Mean_SD){
+  
+  # Variable initialization
+  Range_value <- vector()
+  Mean_Value <- vector()
+  SD_Value <- vector()
+  Answer_Table <- data.frame()
+
+  # Selecting quantitative predictors
+  ForestFires_Quantitative <- subset(Range_Mean_SD, select = c(FFMC:area))
+
+  # Loop: Calculating range, mean and SD
+  for (name in colnames(ForestFires_Quantitative)){
+    Range_value <- range(ForestFires_Quantitative[[name]])
+    Mean_Value <- format(round(mean(ForestFires_Quantitative[[name]]),2))
+    SD_Value <- format(round(sd(ForestFires_Quantitative[[name]]),2))
+  
+    Answer_Table <- rbind(Answer_Table, c(Range_value, Mean_Value, SD_Value))
+  }
+
+  # Giving row and column names
+  rownames(Answer_Table) <- c("FFMC", "DMC", "DC", "ISI", "temp", "RH", "wind", "rain", "area")
+  colnames(Answer_Table) <- c("Range_L", "Range_U", "Mean", "SD")
+
+  # Displaying table
+  print(Answer_Table)
+}
+
+# Calling the function to calculate range, mean and SD
+Range_Mean_SD(ForestFires)
+
+```
+
+Here, Range_L is the lower bound of the range, Range_U is the upper bound of the range and SD is the standard deviation.
+
+For DC (Drought code index) there is a data missing in the column and that is why the lower bound of the range, mean and standard deviation of DC cannot be calculated.
+
+```{r, warning=FALSE, message=FALSE}
+
+# Determining which day in the week has the highest number of fire
+Fire_Day <- data.frame()
+
+# Loop: Fire day
+for (value in 1:length(ForestFires$area)){
+  if (ForestFires$area[value]!=0){
+    Fire_Day <- ForestFires$day[value]
+  }
+}
+Max_Fire_Day <- names(which.max(table(Fire_Day)))
+
+```
+
+To determine which day in the week has the highest number of fire, at first the 0 areas (i.e. the measured area affected by fire is 0) are ignored and from the rest of the area, the days are observed.
+
+Hence, the highest number of fire occurred in **`r Max_Fire_Day`day**.
+
+
+## 2(c) Range, mean and standard deviation after removing the 40th through 80th (inclusive) observations
+
+```{r, warning=FALSE, message=FALSE}
+
+# Removing 40th through 80th (inclusive) observations
+ForestFires_New <- ForestFires[-c(40:80),]
+
+# Calling the function that will calculate range, mean and standard deviation
+Range_Mean_SD(ForestFires_New)
+
+```
+
+Here, Range_L is the lower bound of the range, Range_U is the upper bound of the range and SD is the standard deviation.
+
+For DC (Drought code index) there is a data missing in the column and that is why the lower bound of the range, mean and standard deviation of DC cannot be calculated.
+
+
+## 2(d) Bar plots of month vs forest fires
+
+```{r, warning=FALSE, message=FALSE}
+
+#
+library(plyr)
+library(dplyr)
+
+# Creating dataframe for wind>4
+ForestFires_New2 <- ForestFires[which(ForestFires$wind>4),]
+
+# Counting months
+Fire_Month <- count(ForestFires_New2, vars="month")
+
+# Creating Bar plot
+barplot(Fire_Month$freq, names.arg=Fire_Month$month, 
+        main="Count of Forest Fires in Each Month for Wind>4",
+        xlab="Count", ylab="Months")
+
+```
+
+From the above bar plot, we can see that during **August** month, high wind forest fires are the most common. 
+
+
+## 2(e) Data set investigation
+
+Scatter plots has been done only on quantitative predictors. However, as DC has a missing value, hence it is ignored in the scatter plot. 
+
+```{r, warning=FALSE, message=FALSE}
+
+# Creating quantitative predictor data frame
+ForestFires_Quantitative <- subset(ForestFires, select = c(FFMC,DMC,ISI,temp,RH,wind,rain,area))
+
+# Creating scatter plot matrix
+pairs(ForestFires_Quantitative, main="Scatter Plot for Quantitative Predictors")
+
+# Correlation matrix
+Correlation_Matrix <- format(round(cor(ForestFires_Quantitative),3))
+Correlation_Matrix
+```
+
+
+## 2(f) Wind speed prediction
+
+According to the findings of the Pearson Correlation analysis, the degree of correlation that exists between two variables can be positive, negative, or even zero, and its range is from -1 to +1.
+According to the correlation matrix that was just presented, we can see that the absolute value between wind and temperature is the largest, despite the fact that it has a negative correlation (-0.227). This indicates that there is an inverse relationship between wind speed and temperature. In addition, it is a well-known fact that when there is a strong breeze, the temperature drops. Therefore, if we want to forecast the wind, temperature can be a suitable indicator to use.
